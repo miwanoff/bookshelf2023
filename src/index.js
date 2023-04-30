@@ -48,7 +48,8 @@ class App extends React.Component {
                   <div className="col-4">{book.name}</div>
                   <div className="col-3">{book.author}</div>
                   <div className="col-2">{book.price}</div>
-                  <div className="col-3">
+                  <div className="col-1">{book.count}</div>
+                  <div className="col-2">
                     <button
                       onClick={this.deleteBookFromCart.bind(this, book)}
                       type="button"
@@ -61,6 +62,16 @@ class App extends React.Component {
               </li>
             ))}
           </ul>
+          <div className="row">
+            <div className="col-12">
+              <Count goods={this.state.cart} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-12">
+              <Sum goods={this.state.cart} />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -77,17 +88,22 @@ class App extends React.Component {
   };
 
   addBookToCart = (book) => {
-    //console.log(book);
     const goods = this.state.cart;
-    goods.push(book);
-    //console.log(goods);
+    if (!goods.includes(book)) goods.push(book);
+    else book.count++;
     this.setState({
       cart: goods,
     });
   };
 
   deleteBookFromCart = (book) => {
-    const goods = this.state.cart.filter((item) => item.id !== book.id);
+    let goods;
+    if (book.count === 1)
+      goods = this.state.cart.filter((item) => item.id !== book.id);
+    else
+      goods = this.state.cart.filter((item) =>
+        item.id === book.id ? book.count-- : book.count
+      );
     this.setState({
       cart: goods,
     });
@@ -101,6 +117,27 @@ function Header(props) {
       <h1 className="display-2">Книжный магазин</h1>
     </div>
   );
+}
+
+class Sum extends React.Component {
+  render() {
+    let sum = 0;
+    this.props.goods.forEach((book) => {
+      console.log(book.price);
+      sum += +(book.price * book.count);
+    });
+    return <div> Суммарна вартість: {sum.toFixed(2)} </div>;
+  }
+}
+
+class Count extends React.Component {
+  render() {
+    let count = 0;
+    this.props.goods.forEach((book) => {
+      count += book.count;
+    });
+    return <div> Кількість книг в кошику: {count} </div>;
+  }
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
