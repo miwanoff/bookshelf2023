@@ -6,23 +6,34 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import logo from "./logo.svg";
 import BookItem from "./BookItem.jsx";
 import Image from "./Image.jsx";
+import SearchPanel from "./SearchPanel.jsx";
+
+import "./books.css";
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
       books: booksData,
-      cart: [],
+      cart: this.getBookData().length ? this.getBookData() : [],
+      term: "",
     };
   }
 
   render() {
+    const { books, cart, term } = this.state;
+    const visibleBooks = this.searchBook(books, term);
     return (
       <div>
         <Header className="header container-fluid p-5 bg-dark text-primary text-center" />
         <div className="container text-center">
+          <div className="row">
+            <div className="search-panel col-4 my-3">
+              <SearchPanel onUpdateSearch={this.onUpdateSearch} />
+            </div>
+          </div>
           <div className="row justify-content-center">
-            {this.state.books.map((book) => {
+            {visibleBooks.map((book) => {
               //console.log(book.id);
               return (
                 <div key={book.id} className="col-sm-4 col-12">
@@ -40,7 +51,7 @@ class App extends React.Component {
         </div>
         <div className="container-fluid text-center">
           <h4>Кошик товарів</h4>
-          <p>Кількість книг: {this.state.cart.length} </p>
+          <p>Кількість книг: {cart.length} </p>
           <ul className="list-group">
             {this.state.cart.map((book) => (
               <li key={book.id} className="list-group-item">
@@ -64,7 +75,7 @@ class App extends React.Component {
           </ul>
           <div className="row">
             <div className="col-12">
-              <Count goods={this.state.cart} />
+              <Count goods={cart} />
             </div>
           </div>
           <div className="row">
@@ -82,6 +93,7 @@ class App extends React.Component {
       return item.id !== book.id;
     });
     console.log(updateBooks);
+    this.setBookData(updateBooks);
     this.setState({
       books: updateBooks,
     });
@@ -91,6 +103,7 @@ class App extends React.Component {
     const goods = this.state.cart;
     if (!goods.includes(book)) goods.push(book);
     else book.count++;
+    this.setBookData(goods);
     this.setState({
       cart: goods,
     });
@@ -107,6 +120,32 @@ class App extends React.Component {
     this.setState({
       cart: goods,
     });
+  };
+
+  // Получаем данные из LocalStorage
+  getBookData = () => {
+    return localStorage.getItem("cart")
+      ? JSON.parse(localStorage.getItem("books"))
+      : 0;
+  };
+
+  // Записываем данные в LocalStorage
+  setBookData = (o) => {
+    localStorage.setItem("books", JSON.stringify(o));
+    return false;
+  };
+
+  searchBook = (items, term) => {
+    if (term.length === 0) {
+      return items;
+    }
+    return items.filter((item) => {
+      return item.name.indexOf(term) > -1;
+    });
+  };
+
+  onUpdateSearch = (term) => {
+    this.setState({ term: term });
   };
 }
 
