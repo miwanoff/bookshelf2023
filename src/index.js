@@ -27,7 +27,6 @@ const App = () => {
     setBooks(updateBooks);
   };
 
-
   const addBookToCart = (book) => {
     let goods = [...cart];
     goods.length && goods.includes(book) ? book.count++ : goods.push(book);
@@ -48,9 +47,6 @@ const App = () => {
     setCart(goods);
   };
 
-
-
-
   const searchBook = (items, term) => {
     if (term.length === 0) {
       return items;
@@ -60,16 +56,13 @@ const App = () => {
     });
   };
 
-
   const onUpdateSearch = (term) => {
     setTerm(term);
   };
 
-
   const onUpdateSort = (isChecked) => {
     setIsChecked(isChecked);
   };
-
 
   const sortBook = (items, isChecked) => {
     if (isChecked) {
@@ -80,7 +73,6 @@ const App = () => {
       return items.sort((a, b) => a.id - b.id);
     }
   };
-
 
   const visibleBooks = searchBook(sortBook(books, isChecked), term);
   return (
@@ -161,11 +153,9 @@ const getBookData = () => {
     : [];
 };
 
-
 const setBookData = (o) => {
   localStorage.setItem("goods", JSON.stringify(o));
 };
-
 
 function Header(props) {
   return (
@@ -176,16 +166,17 @@ function Header(props) {
   );
 }
 
-class Sum extends React.Component {
-  render() {
-    let sum = 0;
-    this.props.goods.forEach((book) => {
+const Sum = (props) => {
+  let goods = props.goods;
+  let sum = 0;
+  if (goods) {
+    props.goods.forEach((book) => {
       console.log(book.price);
       sum += +(book.price * book.count);
     });
-    return <div> Суммарна вартість: {sum.toFixed(2)} </div>;
   }
-}
+  return <div> Суммарна вартість: {sum.toFixed(2)} </div>;
+};
 
 class Count extends React.Component {
   render() {
