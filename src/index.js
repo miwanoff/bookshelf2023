@@ -7,6 +7,7 @@ import logo from "./logo.svg";
 import BookItem from "./BookItem.jsx";
 import Image from "./Image.jsx";
 import SearchPanel from "./SearchPanel.jsx";
+import SortPanel from "./SortPanel.jsx";
 
 import "./books.css";
 
@@ -17,12 +18,15 @@ class App extends React.Component {
       books: booksData,
       cart: this.getBookData().length ? this.getBookData() : [],
       term: "",
+      isChecked: false,
     };
   }
 
   render() {
-    const { books, cart, term } = this.state;
-    const visibleBooks = this.searchBook(books, term);
+    const { books, cart, term,  isChecked} = this.state;
+    //const visibleBooks = this.searchBook(books, term);
+    const visibleBooks = this.sortBook(books, isChecked);
+
     return (
       <div>
         <Header className="header container-fluid p-5 bg-dark text-primary text-center" />
@@ -32,6 +36,12 @@ class App extends React.Component {
               <SearchPanel onUpdateSearch={this.onUpdateSearch} />
             </div>
           </div>
+          <div className="row">
+            <div className="col-3 my-3">
+              <SortPanel onUpdateSort={this.onUpdateSort} />
+            </div>
+          </div>
+
           <div className="row justify-content-center">
             {visibleBooks.map((book) => {
               //console.log(book.id);
@@ -146,6 +156,20 @@ class App extends React.Component {
 
   onUpdateSearch = (term) => {
     this.setState({ term: term });
+  };
+
+  onUpdateSort = (isChecked) => {
+    this.setState({ isChecked: isChecked });
+  };
+
+  sortBook = (items, isChecked) => {
+    if (isChecked) {
+      return items.sort((a, b) =>
+        a.name < b.name ? -1 : a.name === b.name ? 0 : 1
+      );
+    } else {
+      return items.sort((a, b) => (a.id < b.id ? -1 : a.id === b.id ? 0 : 1));
+    }
   };
 }
 
