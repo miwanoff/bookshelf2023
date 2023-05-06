@@ -167,9 +167,8 @@ function Header(props) {
 }
 
 const Sum = (props) => {
-  let goods = props.goods;
   let sum = 0;
-  if (goods) {
+  if (props.goods) {
     props.goods.forEach((book) => {
       console.log(book.price);
       sum += +(book.price * book.count);
