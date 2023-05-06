@@ -24,8 +24,8 @@ class App extends React.Component {
 
   render() {
     const { books, cart, term,  isChecked} = this.state;
-    //const visibleBooks = this.searchBook(books, term);
-    const visibleBooks = this.sortBook(books, isChecked);
+    const visibleBooks = this.searchBook(this.sortBook(books, isChecked), term);
+    // const visibleBooks = this.sortBook(books, isChecked);
 
     return (
       <div>
