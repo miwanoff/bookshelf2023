@@ -1,4 +1,5 @@
-import React from "react";
+// import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import booksData from "./books.js";
 import "bootstrap";
@@ -11,141 +12,46 @@ import SortPanel from "./SortPanel.jsx";
 
 import "./books.css";
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      books: booksData,
-      cart: this.getBookData().length ? this.getBookData() : [],
-      term: "",
-      isChecked: false,
-    };
-  }
+//class App extends React.Component {
+const App = () => {
+  const [books, setBooks] = useState(booksData);
+  const [cart, setCart] = useState(getBookData);
+  const [term, setTerm] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
-  render() {
-    const { books, cart, term,  isChecked} = this.state;
-    const visibleBooks = this.searchBook(this.sortBook(books, isChecked), term);
-    // const visibleBooks = this.sortBook(books, isChecked);
-
-    return (
-      <div>
-        <Header className="header container-fluid p-5 bg-dark text-primary text-center" />
-        <div className="container text-center">
-          <div className="row">
-            <div className="search-panel col-4 my-3">
-              <SearchPanel onUpdateSearch={this.onUpdateSearch} />
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-3 my-3">
-              <SortPanel onUpdateSort={this.onUpdateSort} />
-            </div>
-          </div>
-
-          <div className="row justify-content-center">
-            {visibleBooks.map((book) => {
-              //console.log(book.id);
-              return (
-                <div key={book.id} className="col-sm-4 col-12">
-                  <div className="card text-center my-5 p-3">
-                    <BookItem
-                      book={book}
-                      removeBook={this.removeBook}
-                      addBookToCart={this.addBookToCart}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="container-fluid text-center">
-          <h4>Кошик товарів</h4>
-          <p>Кількість книг: {cart.length} </p>
-          <ul className="list-group">
-            {this.state.cart.map((book) => (
-              <li key={book.id} className="list-group-item">
-                <div className="row">
-                  <div className="col-4">{book.name}</div>
-                  <div className="col-3">{book.author}</div>
-                  <div className="col-2">{book.price}</div>
-                  <div className="col-1">{book.count}</div>
-                  <div className="col-2">
-                    <button
-                      onClick={this.deleteBookFromCart.bind(this, book)}
-                      type="button"
-                      className="btn btn-outline-primary mt-auto mb-2"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="row">
-            <div className="col-12">
-              <Count goods={cart} />
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-12">
-              <Sum goods={this.state.cart} />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  removeBook = (book) => {
-    const updateBooks = this.state.books.filter(function (item) {
+  const removeBook = (book) => {
+    let goods = books;
+    const updateBooks = goods.filter(function (item) {
       return item.id !== book.id;
     });
-    console.log(updateBooks);
-    this.setBookData(updateBooks);
-    this.setState({
-      books: updateBooks,
-    });
+    setBooks(updateBooks);
   };
 
-  addBookToCart = (book) => {
-    const goods = this.state.cart;
-    if (!goods.includes(book)) goods.push(book);
-    else book.count++;
-    this.setBookData(goods);
-    this.setState({
-      cart: goods,
-    });
+
+  const addBookToCart = (book) => {
+    let goods = [...cart];
+    goods.length && goods.includes(book) ? book.count++ : goods.push(book);
+    setBookData(goods);
+    setCart(goods);
   };
 
-  deleteBookFromCart = (book) => {
+  const deleteBookFromCart = (book) => {
     let goods;
-    if (book.count === 1)
-      goods = this.state.cart.filter((item) => item.id !== book.id);
-    else
-      goods = this.state.cart.filter((item) =>
+    if (book.count === 1) {
+      goods = cart.filter((item) => item.id !== book.id);
+    } else {
+      goods = cart.filter((item) =>
         item.id === book.id ? book.count-- : book.count
       );
-    this.setState({
-      cart: goods,
-    });
+    }
+    setBookData(goods);
+    setCart(goods);
   };
 
-  // Получаем данные из LocalStorage
-  getBookData = () => {
-    return localStorage.getItem("cart")
-      ? JSON.parse(localStorage.getItem("books"))
-      : 0;
-  };
 
-  // Записываем данные в LocalStorage
-  setBookData = (o) => {
-    localStorage.setItem("books", JSON.stringify(o));
-    return false;
-  };
 
-  searchBook = (items, term) => {
+
+  const searchBook = (items, term) => {
     if (term.length === 0) {
       return items;
     }
@@ -154,24 +60,112 @@ class App extends React.Component {
     });
   };
 
-  onUpdateSearch = (term) => {
-    this.setState({ term: term });
+
+  const onUpdateSearch = (term) => {
+    setTerm(term);
   };
 
-  onUpdateSort = (isChecked) => {
-    this.setState({ isChecked: isChecked });
+
+  const onUpdateSort = (isChecked) => {
+    setIsChecked(isChecked);
   };
 
-  sortBook = (items, isChecked) => {
+
+  const sortBook = (items, isChecked) => {
     if (isChecked) {
       return items.sort((a, b) =>
         a.name < b.name ? -1 : a.name === b.name ? 0 : 1
       );
     } else {
-      return items.sort((a, b) => (a.id < b.id ? -1 : a.id === b.id ? 0 : 1));
+      return items.sort((a, b) => a.id - b.id);
     }
   };
-}
+
+
+  const visibleBooks = searchBook(sortBook(books, isChecked), term);
+  return (
+    <div>
+      <Header className="header container-fluid p-5 bg-dark text-primary text-center" />
+      <div className="container text-center">
+        <div className="row">
+          <div className="search-panel col-4 my-3">
+            <SearchPanel onUpdateSearch={onUpdateSearch} />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-3 my-3">
+            <SortPanel onUpdateSort={onUpdateSort} />
+          </div>
+        </div>
+
+        <div className="row justify-content-center">
+          {visibleBooks.map((book) => {
+            // console.log(book.id);
+            return (
+              <div key={book.id} className="col-sm-4 col-12">
+                <div className="card text-center my-5 p-3">
+                  <BookItem
+                    book={book}
+                    removeBook={removeBook}
+                    addBookToCart={addBookToCart}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="container-fluid text-center">
+        <h4>Кошик товарів</h4>
+        <p>Кількість книг: {cart.length} </p>
+
+        <ul className="list-group">
+          {cart.map((book) => (
+            <li key={book.id} className="list-group-item">
+              <div className="row">
+                <div className="col-4">{book.name}</div>
+                <div className="col-3">{book.author}</div>
+                <div className="col-2">{book.price}</div>
+                <div className="col-1">{book.count}</div>
+                <div className="col-2">
+                  <button
+                    onClick={() => deleteBookFromCart(book)}
+                    type="button"
+                    className="btn btn-outline-primary mt-auto mb-2"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="row">
+          <div className="col-12">
+            <Count goods={cart} />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12">
+            <Sum goods={cart} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const getBookData = () => {
+  return localStorage.getItem("goods")
+    ? JSON.parse(localStorage.getItem("goods"))
+    : [];
+};
+
+
+const setBookData = (o) => {
+  localStorage.setItem("goods", JSON.stringify(o));
+};
+
 
 function Header(props) {
   return (
